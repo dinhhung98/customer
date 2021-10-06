@@ -31,11 +31,11 @@ public class RabbitMQConsumer {
 		logger.info("message input : {}",message);
 		try {
 			logger.info("Queue data request: {}", queueData);
-			BankRequest payment = MapperObject.getMapperObject().toEntity(queueData);
-			logger.info("Data insert to sql: {}", payment.toString());
-			paymentRepository.save(payment);
+			BankRequest bankRequest = MapperObject.getMapperObject().toEntity(queueData);
+			logger.info("Data insert to sql: {}", bankRequest.toString());
+			paymentRepository.save(bankRequest);
 			logger.info("Save payment success: {}", "200");
-			ResponseEntity<?> result =sendToServer(payment, url);
+			ResponseEntity<?> result =sendToServer(bankRequest, url);
 			logger.info("Response to server: ", result);
 			if(200 == result.getStatusCodeValue()) {
 				return String.valueOf(result.getStatusCodeValue());
@@ -50,11 +50,11 @@ public class RabbitMQConsumer {
 	        ThreadContext.clearAll();
 		}
 	}
-	private ResponseEntity<?> sendToServer(BankRequest payment, String url){
-		logger.info("Begin to server: {} and url: {}", payment, url);
+	private ResponseEntity<?> sendToServer(BankRequest bankRequest, String url){
+		logger.info("Begin to server: {} and url: {}", bankRequest, url);
 		try {
 			RestTemplate restTemplate = new RestTemplate();
-			ResponseEntity<Object> responseEntity = restTemplate.postForEntity(url, payment, Object.class);
+			ResponseEntity<Object> responseEntity = restTemplate.postForEntity(url, bankRequest, Object.class);
 			return responseEntity;
 		} catch (Exception e) {
 			// TODO: handle exception
