@@ -33,14 +33,13 @@ public class RabbitMQConsumer {
 			logger.info("Queue data request: {}", queueData);
 			BankRequest bankRequest = MapperObject.getMapperObject().toEntity(queueData);
 			logger.info("Data insert to sql: {}", bankRequest.toString());
-			paymentRepository.save(bankRequest);
+			if (!saveToDatabase(bankRequest)){
+				return "save to database false";
+			}
 			logger.info("Save payment success: {}", "200");
 			ResponseEntity<?> result =sendToServer(bankRequest, url);
 			logger.info("Response to server: ", result);
-			if(200 == result.getStatusCodeValue()) {
-				return String.valueOf(result.getStatusCodeValue());
-			}
-			return "";
+			return String.valueOf(result.getStatusCodeValue());
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			logger.error("Process queue exception: ", e);
@@ -57,10 +56,18 @@ public class RabbitMQConsumer {
 			ResponseEntity<Object> responseEntity = restTemplate.postForEntity(url, bankRequest, Object.class);
 			return responseEntity;
 		} catch (Exception e) {
-			// TODO: handle exception
 			logger.error("Send to server: ", e);
 			return null;
 		}
 	}
-	
+
+	private boolean saveToDatabase(BankRequest bankRequest){
+		try {
+			paymentRepository.save(bankRequest);
+			return true;
+		}catch (Exception e){
+			logger.error("Save request to database ",e);
+			return false;
+		}
+	}
 }
