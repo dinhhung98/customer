@@ -10,6 +10,7 @@ import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -53,7 +54,9 @@ public class RabbitMQConsumer {
 		logger.info("Begin to server: {} and url: {}", bankRequest, url);
 		try {
 			RestTemplate restTemplate = new RestTemplate();
-			ResponseEntity<Object> responseEntity = restTemplate.postForEntity(url, bankRequest, Object.class);
+//			ResponseEntity<Object> responseEntity = restTemplate.postForEntity(url, bankRequest, Object.class);
+			HttpEntity<BankRequest> requestBody = new HttpEntity<>(bankRequest);
+			ResponseEntity<Object> responseEntity = restTemplate.postForEntity(url, requestBody, Object.class);
 			return responseEntity;
 		} catch (Exception e) {
 			logger.error("Send to server: ", e);
